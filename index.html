@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeoMarket</title>
+  <link rel="stylesheet" href="Css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo">NeoMarket</h1>
+      <nav class="nav">
+        <a href="#">Inicio</a>
+        <a href="#about">Nosotros</a>
+        <a href="#help">Ayuda</a>
+        <a href="#contact">Contacto</a>
+        <button class="btn-primary"><a href="#companyModal" style="text-decoration: none; color: white;">Comienza Ahora</a></button>
+      </nav>
+    </div>
+  </header> 
+
+      <!-- Modal para crear/editar usuario -->
+      <div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="companyModalLabel">Creación De Empresa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="company-form">
+                        <div class="mb-3">
+                            <label for="name-company" class="form-label">Nombre de Empresa</label>
+                            <input type="text" class="form-control" id="name-company" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="nit" class="form-label">Nit</label>
+                            <input type="number" class="form-control" id="nit" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone-company" class="form-label">Numero de Contacto</label>
+                            <input type="text" class="form-control" id="phone-company" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="company-email" class="form-label">Correo Empresarial</label>
+                            <input type="email" class="form-control" id="company-email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="company-description" class="form-label">Breve Descripción de su empresa</label>
+                            <input type="text" class="form-control" id="company-description" required>
+                        </div>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-company">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Virtualiza tu tienda, escala tu negocio</h2>
+      <p>
+        Con NeoMarket crea tu tienda virtual en segundos y lleva tus productos al mundo digital.
+      </p>
+      <button class="btn-primary">Comienza Ahora</button>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <div class="container text-center">
+      <h3>Sobre Nosotros</h3>
+      <p>
+        En NeoMarket creemos en el poder de la tecnología para empoderar a los negocios. Nuestra plataforma permite
+        a cualquier empresa crear su presencia digital de forma rápida, segura y eficiente.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section-gray">
+    <div class="container text-center">
+      <h3>¿Por qué NeoMarket?</h3>
+      <div class="features-grid">
+        <div class="feature-card">Fácil de usar</div>
+        <div class="feature-card">Personalización total</div>
+        <div class="feature-card">Estadísticas en tiempo real</div>
+        <div class="feature-card">Integración de pagos</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="section">
+    <div class="container text-center">
+      <h3>Contáctanos</h3>
+      <p>¿Tienes dudas? ¡Estamos para ayudarte!</p>
+      <div class="contact-links">
+        <a href="#">Facebook</a>
+        <a href="#">Instagram</a>
+        <a href="#">WhatsApp</a>
+        <a href="#">Correo</a>
+      </div>
+    </div>
+  </section>
+</body>
+<script src="Js/API.js"></script>
+<script src="Js/index.js"></script>
+</html>
+

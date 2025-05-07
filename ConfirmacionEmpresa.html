@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuenta Creada - NeoMarket</title>
+  <style>
+    /* Estilos generales */
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      color: #2d3748;
+      background-color: #f0f4ff;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2563eb;
+    }
+    
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .nav a {
+      text-decoration: none;
+      color: #2d3748;
+      transition: color 0.3s;
+    }
+    
+    .nav a:hover {
+      color: #2563eb;
+    }
+    
+    /* Sección de confirmación */
+    .confirmation-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding-top: 5rem;
+      background-color: #dbeafe;
+      text-align: center;
+    }
+    
+    .confirmation-content {
+      max-width: 700px;
+      background-color: white;
+      padding: 3rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    .confirmation-content h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e40af;
+      margin-bottom: 1rem;
+    }
+    
+    .confirmation-content p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #4b5563;
+    }
+    
+    .confirmation-icon {
+      font-size: 4rem;
+      color: #10b981;
+      margin-bottom: 1.5rem;
+    }
+    
+    .btn-primary {
+      background-color: #2563eb;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+    
+    /* Animaciones */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Footer sencillo */
+    .footer {
+      background: #f3f4f6;
+      padding: 2rem 0;
+      text-align: center;
+      color: #6b7280;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo">NeoMarket</h1>
+      <nav class="nav">
+        <a href="#">Inicio</a>
+        <a href="#about">Nosotros</a>
+        <a href="#help">Ayuda</a>
+        <a href="#contact">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="confirmation-section">
+    <div class="confirmation-content">
+      <div class="confirmation-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>¡Tu cuenta ha sido creada con éxito!</h2>
+      <p>Ahora vamos a seleccionar los roles que requieres para tu empresa. 
+         Esto nos ayudará a personalizar tu experiencia en la plataforma y 
+         ofrecerte las herramientas que necesitas.</p>
+      <a href="roles.html" class="btn-primary">Continuar con la selección de roles</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 NeoMarket. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>

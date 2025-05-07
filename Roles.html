@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuenta Creada - NeoMarket</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="Css/roles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo">NeoMarket</h1>
+      <nav class="nav">
+        <a href="#">Inicio</a>
+        <a href="#about">Nosotros</a>
+        <a href="#help">Ayuda</a>
+        <a href="#contact">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="roles-section">
+    <div class="roles-content">
+      <h2>Configuración de Roles para tu Empresa</h2>
+      <p>Define los roles que necesitas para tu organización. Puedes agregar tantos como necesites.</p>
+      
+      <div class="roles-form">
+        <div class="roles-list" id="roles-list">
+          <!-- Aquí se agregarán dinámicamente los roles -->
+        </div>
+        
+        <button type="button" id="add-role-btn" class="add-role-btn">
+          <i class="fas fa-plus"></i> Agregar nuevo rol
+        </button>
+      </div>
+      
+      <div class="buttons-container">
+        <button type="button" id="back-btn" class="btn btn-secondary">Atrás</button>
+        <button type="button" id="save-roles-btn" class="btn btn-primary">Guardar roles</button>
+      </div>
+    </div>
+  </section>
+  
+  <div id="notification" class="notification">
+    <span id="notification-message"></span>
+    <button id="notification-close" class="notification-close"><i class="fas fa-times"></i></button>
+  </div>
+</footer>
+<script src="Js/API.js"></script>
+  <script src="Js/roles.js"></script>
+</body>
+</html>
