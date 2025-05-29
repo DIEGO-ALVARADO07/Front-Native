@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autogestión Sena</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- JS del Home -->
+  <script defer src="../src/js/home.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  <!-- Aquí se inyecta el nav -->
+  <div id="navbar"></div>
+
+  <div class="flex ">
+    <!-- Sidebar -->
+    <div id="menu-container"></div>
+
+    <!-- Contenido principal -->
+
+    <main class="flex-1 container mx-auto px-4 py-6">
+      <!-- Sección de bienvenida -->
+      <section class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">Bienvenido al Sistema de Gestión</h2>
+        </div>
+        <p class="text-gray-600 mb-4">Estás logueado correctamente. Selecciona una entidad del menú para comenzar a
+          gestionar tus datos.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+          <!-- Tarjeta de entidad 1 -->
+          <div class="bg-blue-50 rounded-lg p-4 shadow hover:shadow-md transition duration-300">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Usuarios</h3>
+            <p class="text-gray-600 mb-4">Gestiona los usuarios del sistema.</p>
+            <a href="users.html" class="text-blue-600 hover:text-blue-800 font-medium flex items-center">
+              Administrar
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+
+          <!-- Tarjeta de entidad 2 -->
+          <div class="bg-green-50 rounded-lg p-4 shadow hover:shadow-md transition duration-300">
+            <h3 class="text-lg font-semibold text-green-800 mb-2">Roles</h3>
+            <p class="text-gray-600 mb-4">Gestiona la información de Roles.</p>
+            <a href="rols.html" class="text-green-600 hover:text-green-800 font-medium flex items-center">
+              Administrar
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src=""></script>
+  <script src="../src/js/menu.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoMarket - Portal del Estudiante</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS personalizado -->
+  <style>
+    /* Animaciones básicas */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      transition: all 0.3s ease-in-out;
+      width: 250px;
+    }
+    
+    .sidebar.collapsed {
+      width: 70px;
+    }
+    
+    .sidebar.collapsed .nav-text {
+      display: none;
+    }
+    
+    /* Submenu */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .submenu.active {
+      max-height: 500px;
+    }
+    
+    /* Estilos generales */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+    
+    /* Efecto hover para los menús */
+    .menu-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Notificación simple */
+    .notification {
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .notification.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    /* Tarjeta de saldo */
+    .balance-card {
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      transition: all 0.3s ease;
+    }
+    
+    .balance-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Efecto hover para productos */
+    .product-card {
+      transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar / Menú lateral -->
+    <div id="sidebar" class="sidebar bg-gray-800 text-white h-full">
+      <div class="flex flex-col h-full">
+        <!-- Logo -->
+        <div class="p-5 flex items-center justify-between">
+          <div class="flex items-center">
+            <span id="logo-text" class="text-xl font-bold text-blue-400">NeoMarket</span>
+          </div>
+          <button id="toggle-sidebar" class="text-white p-1 rounded-md hover:bg-gray-700 transition-all">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+        
+        <!-- Menú de navegación -->
+        <nav class="flex-1 p-4 overflow-y-auto">
+          <ul class="space-y-2">
+            <!-- Inicio -->
+            <li>
+              <a href="#" class="menu-item flex items-center p-3 rounded-md hover:text-white text-gray-300 transition-all">
+                <i class="fas fa-home w-6 text-center"></i>
+                <span class="ml-3 nav-text">Inicio</span>
+              </a>
+            </li>
+            
+            <!-- Mi Cuenta -->
+            <li>
+              <button class="menu-item w-full flex items-center justify-between p-3 rounded-md hover:text-white text-gray-300 transition-all">
+                <div class="flex items-center">
+                  <i class="fas fa-user w-6 text-center"></i>
+                  <span class="ml-3 nav-text">Mi Cuenta</span>
+                </div>
+                <i class="fas fa-chevron-down nav-text transition-transform"></i>
+              </button>
+              <ul class="submenu pl-9 mt-1 space-y-1">
+                <li>
+                  <a href="#" class="menu-item block p-2 rounded-md hover:text-white text-gray-400 transition-all">
+                    <span>Mi Perfil</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="menu-item block p-2 rounded-md hover:text-white text-gray-400 transition-all">
+                    <span>Cambiar Contraseña</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="menu-item block p-2 rounded-md hover:text-white text-gray-400 transition-all">
+                    <span>Notificaciones</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            
+            <!-- Mi Saldo -->
+            <li>
+              <a href="#" class="menu-item flex items-center p-3 rounded-md hover:text-white text-gray-300 transition-all">
+                <i class="fas fa-wallet w-6 text-center"></i>
+                <span class="ml-3 nav-text">Mi Saldo</span>
+              </a>
+            </li>
+            
+            <!-- Productos -->
+            <li>
+              <button class="menu-item w-full flex items-center justify-between p-3 rounded-md hover:text-white text-gray-300 transition-all">
+                <div class="flex items-center">
+                  <i class="fas fa-shopping-cart w-6 text-center"></i>
+                  <span class="ml-3 nav-text">Productos</span>
+                </div>
+                <i class="fas fa-chevron-down nav-text transition-transform"></i>
+              </button>
+              <ul class="submenu pl-9 mt-1 space-y-1">
+                <li>
+                  <a href="#" class="menu-item block p-2 rounded-md hover:text-white text-gray-400 transition-all">
+                    <span>Catálogo</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="menu-item block p-2 rounded-md hover:text-white text-gray-400 transition-all">
+                    <span>Mis Favoritos</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="menu-item block p-2 rounded-md hover:text-white text-gray-400 transition-all">
+                    <span>Historial de Compras</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            
+            <!-- Ayuda -->
+            <li>
+              <a href="#" class="menu-item flex items-center p-3 rounded-md hover:text-white text-gray-300 transition-all">
+                <i class="fas fa-question-circle w-6 text-center"></i>
+                <span class="ml-3 nav-text">Ayuda</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        
+        <!-- Usuario -->
+        <div class="p-4 border-t border-gray-700">
+          <div class="flex items-center">
+            <img class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name=Juan+Perez&background=0ea5e9&color=ffffff" alt="Usuario">
+            <div class="ml-3 nav-text">
+              <p class="text-sm font-medium text-white">Juan Pérez</p>
+              <p class="text-xs text-gray-400">Estudiante</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Barra superior -->
+      <header class="bg-white shadow-sm">
+        <div class="flex justify-between items-center p-4">
+          <h1 class="text-xl font-semibold text-gray-800">Portal del Estudiante</h1>
+          <div class="flex items-center space-x-4">
+            <button id="notification-btn" class="p-1 rounded-full text-gray-600 hover:bg-gray-100 transition-all relative">
+              <i class="fas fa-bell"></i>
+              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">3</span>
+            </button>
+            <div id="user-dropdown" class="relative">
+              <button id="user-menu-btn" class="flex items-center text-gray-700 hover:text-gray-900 transition-all">
+                <span>Juan</span>
+                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+              </button>
+              <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi perfil</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+                <div class="border-t border-gray-100 my-1"></div>
+                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Cerrar sesión</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Área de contenido -->
+      <main class="flex-1 overflow-y-auto p-6">
+        <div class="animate-fadeIn">
+          <!-- Tarjeta de saldo -->
+          <div class="balance-card rounded-lg shadow-md p-6 mb-6 text-white">
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="text-xl font-semibold mb-1">Mi Saldo</h2>
+                <p class="text-3xl font-bold mb-2">$45.500</p>
+                <p class="text-sm opacity-80">Última recarga: 05/05/2025</p>
+              </div>
+              <button id="recharge-btn" class="bg-white text-primary-600 hover:bg-blue-50 px-4 py-2 rounded-md font-medium transition-all">
+                <i class="fas fa-plus-circle mr-2"></i>Recargar
+              </button>
+            </div>
+          </div>
+          
+          <!-- Sección de productos destacados -->
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-semibold text-gray-800">Productos Destacados</h2>
+              <a href="#" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center">
+                Ver todo
+                <i class="fas fa-chevron-right ml-1 text-xs"></i>
+              </a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Producto 1 -->
+              <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Producto" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h3 class="font-semibold text-gray-800">Sándwich Especial</h3>
+                  <p class="text-gray-600 text-sm mb-3">Jamón, queso, lechuga y tomate</p>
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-primary-600">$5.500</span>
+                    <button class="bg-primary-600 text-white px-3 py-1 rounded-md text-sm hover:bg-primary-700 transition-all">
+                      <i class="fas fa-shopping-cart mr-1"></i>Comprar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Producto 2 -->
+              <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1567103472667-6898f3a79cf2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Producto" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h3 class="font-semibold text-gray-800">Jugo Natural</h3>
+                  <p class="text-gray-600 text-sm mb-3">Naranja, manzana o mora</p>
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-primary-600">$3.800</span>
+                    <button class="bg-primary-600 text-white px-3 py-1 rounded-md text-sm hover:bg-primary-700 transition-all">
+                      <i class="fas fa-shopping-cart mr-1"></i>Comprar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Producto 3 -->
+              <div class="product-card bg-white rounded-lg shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Producto" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h3 class="font-semibold text-gray-800">Empanada de Pollo</h3>
+                  <p class="text-gray-600 text-sm mb-3">Rellena de pollo y papa</p>
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-primary-600">$2.500</span>
+                    <button class="bg-primary-600 text-white px-3 py-1 rounded-md text-sm hover:bg-primary-700 transition-all">
+                      <i class="fas fa-shopping-cart mr-1"></i>Comprar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Sección de historial reciente -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Actividad Reciente</h2>
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="bg-green-100 p-2 rounded-full mr-3">
+                  <i class="fas fa-arrow-up text-green-600"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <p class="font-medium text-gray-800">Recarga</p>
+                    <p class="font-medium text-green-600">+$20.000</p>
+                  </div>
+                  <p class="text-sm text-gray-500">05/05/2025 - 14:30</p>
+                </div>
+              </div>
+              
+              <div class="border-t border-gray-100"></div>
+              
+              <div class="flex items-start">
+                <div class="bg-red-100 p-2 rounded-full mr-3">
+                  <i class="fas fa-arrow-down text-red-600"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <p class="font-medium text-gray-800">Sándwich Especial</p>
+                    <p class="font-medium text-red-600">-$5.500</p>
+                  </div>
+                  <p class="text-sm text-gray-500">05/05/2025 - 12:15</p>
+                </div>
+              </div>
+              
+              <div class="border-t border-gray-100"></div>
+              
+              <div class="flex items-start">
+                <div class="bg-red-100 p-2 rounded-full mr-3">
+                  <i class="fas fa-arrow-down text-red-600"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <p class="font-medium text-gray-800">Jugo Natural</p>
+                    <p class="font-medium text-red-600">-$3.800</p>
+                  </div>
+                  <p class="text-sm text-gray-500">04/05/2025 - 09:45</p>
+                </div>
+              </div>
+              
+              <div class="border-t border-gray-100"></div>
+              
+              <div class="flex items-start">
+                <div class="bg-green-100 p-2 rounded-full mr-3">
+                  <i class="fas fa-arrow-up text-green-600"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <p class="font-medium text-gray-800">Recarga</p>
+                    <p class="font-medium text-green-600">+$30.000</p>
+                  </div>
+                  <p class="text-sm text-gray-500">02/05/2025 - 16:20</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+              <a href="#" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                Ver historial completo
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <!-- Modal de recarga -->
+  <div id="recharge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Recargar Saldo</h3>
+        <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="recharge-form">
+        <div class="mb-4">
+          <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Monto a recargar</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-gray-500">$</span>
+            </div>
+            <input type="number" id="amount" class="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2 border" placeholder="0" min="5000" step="1000">
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Selecciona un monto predefinido</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="amount-btn border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all">$5.000</button>
+            <button type="button" class="amount-btn border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all">$10.000</button>
+            <button type="button" class="amount-btn border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all">$20.000</button>
+            <button type="button" class="amount-btn border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all">$30.000</button>
+            <button type="button" class="amount-btn border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all">$50.000</button>
+            <button type="button" class="amount-btn border border-gray-300 rounded-md py-2 hover:bg-gray-50 transition-all">$100.000</button>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label for="payment-method" class="block text-sm font-medium text-gray-700 mb-1">Método de pago</label>
+          <select id="payment-method" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2 border">
+            <option value="credit-card">Tarjeta de Crédito</option>
+            <option value="debit-card">Tarjeta de Débito</option>
+            <option value="bank-transfer">Transferencia Bancaria</option>
+            <option value="cash">Efectivo</option>
+          </select>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button type="button" id="cancel-recharge" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            Cancelar
+          </button>
+          <button type="submit" id="confirm-recharge" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            Recargar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Notificación simple -->
+  <div id="notification" class="notification fixed bottom-4 right-4 bg-white rounded-lg shadow-md p-4 flex items-center max-w-sm">
+    <div id="notification-icon" class="mr-3 text-primary-500">
+      <i class="fas fa-info-circle text-xl"></i>
+    </div>
+    <div class="flex-1">
+      <p id="notification-text">Notificación de ejemplo</p>
+    </div>
+    <button id="close-notification" class="ml-3 text-gray-400 hover:text-gray-600">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Toggle del sidebar
+      const toggleBtn = document.getElementById('toggle-sidebar');
+      const sidebar = document.getElementById('sidebar');
+      
+      toggleBtn.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+      });
+      
+      // Toggle de los submenús
+      const menuButtons = document.querySelectorAll('.menu-item');
+      
+      menuButtons.forEach(button => {
+        if (button.nextElementSibling && button.nextElementSibling.classList.contains('submenu')) {
+          button.addEventListener('click', function() {
+            const submenu = this.nextElementSibling;
+            const icon = this.querySelector('.fa-chevron-down');
+            
+            submenu.classList.toggle('active');
+            
+            if (submenu.classList.contains('active')) {
+              icon.style.transform = 'rotate(180deg)';
+            } else {
+              icon.style.transform = 'rotate(0deg)';
+            }
+          });
+        }
+      });
+      
+      // Dropdown de usuario
+      const userMenuBtn = document.getElementById('user-menu-btn');
+      const dropdownMenu = document.getElementById('dropdown-menu');
+      
+      userMenuBtn.addEventListener('click', function() {
+        dropdownMenu.classList.toggle('hidden');
+      });
+      
+      // Cerrar dropdown al hacer clic fuera
+      document.addEventListener('click', function(event) {
+        if (!userMenuBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+      
+      // Modal de recarga
+      const rechargeBtn = document.getElementById('recharge-btn');
+      const rechargeModal = document.getElementById('recharge-modal');
+      const closeModal = document.getElementById('close-modal');
+      const cancelRecharge = document.getElementById('cancel-recharge');
+      const rechargeForm = document.getElementById('recharge-form');
+      const amountInput = document.getElementById('amount');
+      const amountBtns = document.querySelectorAll('.amount-btn');
+      
+      rechargeBtn.addEventListener('click', function() {
+        rechargeModal.classList.remove('hidden');
+      });
+      
+      function closeRechargeModal() {
+        rechargeModal.classList.add('hidden');
+      }
+      
+      closeModal.addEventListener('click', closeRechargeModal);
+      cancelRecharge.addEventListener('click', closeRechargeModal);
+      
+      // Cerrar modal al hacer clic fuera
+      rechargeModal.addEventListener('click', function(event) {
+        if (event.target === rechargeModal) {
+          closeRechargeModal();
+        }
+      });
+      
+      // Botones de monto predefinido
+      amountBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          // Quitar selección anterior
+          amountBtns.forEach(b => b.classList.remove('bg-primary-50', 'border-primary-500', 'text-primary-700'));
+          
+          // Seleccionar este botón
+          this.classList.add('bg-primary-50', 'border-primary-500', 'text-primary-700');
+          
+          // Actualizar el input
+          const amount = this.textContent.replace('$', '').replace('.', '');
+          amountInput.value = amount;
+        });
+      });
+      
+      // Envío del formulario de recarga
+      rechargeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const amount = amountInput.value;
+        const paymentMethod = document.getElementById('payment-method').value;
+        
+        if (!amount || amount < 5000) {
+          showNotification('El monto mínimo de recarga es $5.000', 'warning');
+          return;
+        }
+        
+        // Simular recarga
+        const confirmBtn = document.getElementById('confirm-recharge');
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Procesando...';
+        confirmBtn.disabled = true;
+        
+        setTimeout(() => {
+          closeRechargeModal();
+          
+          // Actualizar saldo en la UI
+          const currentBalance = document.querySelector('.balance-card p.text-3xl');
+          const newBalance = parseInt(currentBalance.textContent.replace('$', '').replace('.', '')) + parseInt(amount);
+          currentBalance.textContent = '$' + newBalance.toLocaleString('es-CO');
+          
+          // Mostrar notificación
+          showNotification(`Recarga de $${parseInt(amount).toLocaleString('es-CO')} realizada con éxito`, 'success');
+          
+          // Resetear formulario
+          rechargeForm.reset();
+          amountBtns.forEach(b => b.classList.remove('bg-primary-50', 'border-primary-500', 'text-primary-700'));
+          confirmBtn.innerHTML = 'Recargar';
+          confirmBtn.disabled = false;
+          
+          // Actualizar fecha de última recarga
+          const lastRechargeDate = document.querySelector('.balance-card p.text-sm');
+          const today = new Date();
+          lastRechargeDate.textContent = `Última recarga: ${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+          
+          // Añadir actividad a la lista
+          addActivityItem({
+            type: 'recharge',
+            description: 'Recarga',
+            amount: amount,
+            date: today
+          });
+        }, 1500);
+      });
+      
+      // Función para añadir actividad al historial
+       function addActivityItem(activity) {
+         const activityList = document.querySelector('.space-y-4');
+         
+         // Crear el nuevo elemento de actividad
+         const newActivity = document.createElement('div');
+         
+         // Configurar clases y contenido según el tipo
+         if (activity.type === 'recharge') {
+           newActivity.innerHTML = `
+             <div class="flex items-start">
+               <div class="bg-green-100 p-2 rounded-full mr-3">
+                 <i class="fas fa-arrow-up text-green-600"></i>
+               </div>
+               <div class="flex-1">
+                 <div class="flex justify-between">
+                   <p class="font-medium text-gray-800">${activity.description}</p>
+                   <p class="font-medium text-green-600">+$${parseInt(activity.amount).toLocaleString('es-CO')}</p>
+                 </div>
+                 <p class="text-sm text-gray-500">${activity.date.getDate().toString().padStart(2, '0')}/${(activity.date.getMonth() + 1).toString().padStart(2, '0')}/${activity.date.getFullYear()} - ${activity.date.getHours().toString().padStart(2, '0')}:${activity.date.getMinutes().toString().padStart(2, '0')}</p>
+               </div>
+             </div>
+             <div class="border-t border-gray-100"></div>
+           `;
+         } else {
+           newActivity.innerHTML = `
+             <div class="flex items-start">
+               <div class="bg-red-100 p-2 rounded-full mr-3">
+                 <i class="fas fa-arrow-down text-red-600"></i>
+               </div>
+               <div class="flex-1">
+                 <div class="flex justify-between">
+                   <p class="font-medium text-gray-800">${activity.description}</p>
+                   <p class="font-medium text-red-600">-$${parseInt(activity.amount).toLocaleString('es-CO')}</p>
+                 </div>
+                 <p class="text-sm text-gray-500">${activity.date.getDate().toString().padStart(2, '0')}/${(activity.date.getMonth() + 1).toString().padStart(2, '0')}/${activity.date.getFullYear()} - ${activity.date.getHours().toString().padStart(2, '0')}:${activity.date.getMinutes().toString().padStart(2, '0')}</p>
+               </div>
+             </div>
+             <div class="border-t border-gray-100"></div>
+           `;
+         }
+         
+         // Insertar al principio de la lista
+         activityList.insertBefore(newActivity, activityList.firstChild);
+         
+         // Animación de entrada
+         newActivity.style.opacity = '0';
+         newActivity.style.transform = 'translateY(-10px)';
+         newActivity.style.transition = 'all 0.3s ease';
+         
+         setTimeout(() => {
+           newActivity.style.opacity = '1';
+           newActivity.style.transform = 'translateY(0)';
+         }, 10);
+       }
+     
+     // Notificación
+     const notificationBtn = document.getElementById('notification-btn');
+     const notification = document.getElementById('notification');
+     const closeNotification = document.getElementById('close-notification');
+     
+     notificationBtn.addEventListener('click', function() {
+       showNotification('Tienes 3 notificaciones sin leer', 'info');
+     });
+     
+     closeNotification.addEventListener('click', function() {
+       notification.classList.remove('active');
+     });
+     
+     // Función para mostrar notificaciones
+     function showNotification(message, type = 'info') {
+       const notificationText = document.getElementById('notification-text');
+       const notificationIcon = document.getElementById('notification-icon');
+       
+       notificationText.textContent = message;
+       
+       // Configurar icono según tipo
+       let iconClass = 'fa-info-circle text-blue-500';
+       if (type === 'success') iconClass = 'fa-check-circle text-green-500';
+       if (type === 'error') iconClass = 'fa-exclamation-circle text-red-500';
+       if (type === 'warning') iconClass = 'fa-exclamation-triangle text-yellow-500';
+       
+       notificationIcon.innerHTML = `<i class="fas ${iconClass} text-xl"></i>`;
+       
+       // Mostrar notificación
+       notification.classList.add('active');
+       
+       // Ocultar después de 4 segundos
+       setTimeout(() => {
+         notification.classList.remove('active');
+       }, 4000);
+     }
+     
+     // Mostrar notificación inicial
+     setTimeout(() => {
+       showNotification('Bienvenido a NeoMarket, Juan', 'success');
+     }, 1000);
+     
+     // Botones de compra de productos
+     const buyButtons = document.querySelectorAll('.product-card button');
+     
+     buyButtons.forEach(button => {
+       button.addEventListener('click', function() {
+         const productCard = this.closest('.product-card');
+         const productName = productCard.querySelector('h3').textContent;
+         const productPrice = productCard.querySelector('.font-bold').textContent.replace('$', '').replace('.', '');
+         
+         // Confirmar compra
+         if (confirm(`¿Deseas comprar ${productName} por ${productCard.querySelector('.font-bold').textContent}?`)) {
+           // Simular compra
+           this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+           this.disabled = true;
+           
+           setTimeout(() => {
+             // Actualizar saldo
+             const currentBalance = document.querySelector('.balance-card p.text-3xl');
+             const currentAmount = parseInt(currentBalance.textContent.replace('$', '').replace(/\./g, ''));
+             
+             if (currentAmount < parseInt(productPrice)) {
+               showNotification('Saldo insuficiente. Por favor recarga tu cuenta.', 'error');
+               this.innerHTML = '<i class="fas fa-shopping-cart mr-1"></i>Comprar';
+               this.disabled = false;
+               return;
+             }
+             
+             const newBalance = currentAmount - parseInt(productPrice);
+             currentBalance.textContent = '$' + newBalance.toLocaleString('es-CO');
+             
+             // Mostrar notificación
+             showNotification(`¡Compra exitosa! ${productName}`, 'success');
+             
+             // Añadir actividad
+             addActivityItem({
+               type: 'purchase',
+               description: productName,
+               amount: productPrice,
+               date: new Date()
+             });
+             
+             // Restaurar botón
+             this.innerHTML = '<i class="fas fa-shopping-cart mr-1"></i>Comprar';
+             this.disabled = false;
+           }, 1000);
+         }
+       });
+     });
+   });
+ </script>
+</body>
+</html>

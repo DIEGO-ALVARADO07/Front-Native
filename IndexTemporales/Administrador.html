@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoMarket - Panel de Administración</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS personalizado -->
+  <style>
+    /* Animaciones y estilos adicionales */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    @keyframes slideInLeft {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    
+    .animate-pulse-slow {
+      animation: pulse 3s infinite;
+    }
+    
+    .animate-slideInLeft {
+      animation: slideInLeft 0.3s ease-out forwards;
+    }
+    
+    .animate-slideInRight {
+      animation: slideInRight 0.3s ease-out forwards;
+    }
+    
+    /* Estilos para la barra lateral */
+    .sidebar {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .sidebar.collapsed {
+      width: 5rem;
+    }
+    
+    .sidebar.collapsed .sidebar-logo span,
+    .sidebar.collapsed .sidebar-menu-item span,
+    .sidebar.collapsed .sidebar-submenu,
+    .sidebar.collapsed .sidebar-footer span {
+      display: none;
+    }
+    
+    .sidebar-submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+    
+    .sidebar-submenu.active {
+      max-height: 500px;
+    }
+    
+    /* Loader */
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #FFF;
+      border-bottom-color: #0ea5e9;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Notificaciones */
+    .notification {
+      transform: translateX(120%);
+      transition: transform 0.4s ease-in-out;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    /* Cards hover effect */
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Glassmorphism effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+  <!-- Spinner de carga inicial -->
+  <div id="page-loader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    <div class="text-center">
+      <span class="loader"></span>
+      <p class="mt-4 text-gray-600">Cargando NeoMarket...</p>
+    </div>
+  </div>
+  
+  <!-- Header/Navbar -->
+  <header class="bg-white shadow-sm z-10">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center py-3 px-4">
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-3 text-gray-500 hover:text-primary-600 focus:outline-none">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <div class="flex items-center">
+            <span class="text-2xl font-bold text-primary-600">Neo<span class="text-gray-800">Market</span></span>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="notification-btn" class="relative mr-4 text-gray-500 hover:text-primary-600">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+          </button>
+          <div class="relative" id="user-menu">
+            <button type="button" class="flex items-center text-sm rounded-full focus:outline-none" id="user-menu-button">
+              <span class="mr-2 text-gray-700 hidden md:block">Administrador</span>
+              <img class="h-8 w-8 rounded-full border-2 border-primary-500" src="https://ui-avatars.com/api/?name=Admin&background=0284c7&color=ffffff" alt="Usuario">
+            </button>
+            <!-- Dropdown menu (hidden by default) -->
+            <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10" id="user-dropdown">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+              <hr class="my-1">
+              <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Cerrar Sesión</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar bg-gray-800 text-white w-64 flex flex-col h-full overflow-hidden">
+      <div class="p-4 border-b border-gray-700 sidebar-logo flex items-center">
+        <i class="fas fa-shield-alt text-xl text-primary-400 mr-3"></i>
+        <span class="font-bold text-lg">Panel Admin</span>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto py-4 px-3">
+        <ul class="space-y-2">
+          <li>
+            <a href="#dashboard" class="sidebar-menu-item flex items-center p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <i class="fas fa-tachometer-alt w-6 h-6 text-center text-primary-400"></i>
+              <span class="ml-3">Dashboard</span>
+            </a>
+          </li>
+          
+          <li class="mt-4">
+            <div class="flex items-center p-2 text-gray-400 text-xs uppercase tracking-wider">
+              <span>Menú Principal</span>
+              <div class="flex-grow ml-2 h-px bg-gray-700"></div>
+            </div>
+          </li>
+          
+          <!-- Módulo de Seguridad -->
+          <li>
+            <button type="button" class="sidebar-menu-item sidebar-dropdown-btn flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <div class="flex items-center">
+                <i class="fas fa-lock w-6 h-6 text-center text-primary-400"></i>
+                <span class="ml-3">Seguridad</span>
+              </div>
+              <i class="fas fa-chevron-down transition-transform"></i>
+            </button>
+            <ul class="sidebar-submenu pl-10 pr-2 pb-1 pt-2">
+              <li>
+                <a href="ListarUsuario.html" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-users mr-2 text-sm"></i>
+                  <span>Listar Usuarios</span>
+                </a>
+              </li>
+              <li>
+                <a href="#usuarios-crear" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-user-plus mr-2 text-sm"></i>
+                  <span>Crear Usuario</span>
+                </a>
+              </li>
+              <li>
+                <a href="#usuarios-roles" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-user-tag mr-2 text-sm"></i>
+                  <span>Roles y Permisos</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          
+          <!-- Módulo de Productos -->
+          <li>
+            <button type="button" class="sidebar-menu-item sidebar-dropdown-btn flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <div class="flex items-center">
+                <i class="fas fa-box w-6 h-6 text-center text-primary-400"></i>
+                <span class="ml-3">Productos</span>
+              </div>
+              <i class="fas fa-chevron-down transition-transform"></i>
+            </button>
+            <ul class="sidebar-submenu pl-10 pr-2 pb-1 pt-2">
+              <li>
+                <a href="#productos-listar" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-list mr-2 text-sm"></i>
+                  <span>Listar Productos</span>
+                </a>
+              </li>
+              <li>
+                <a href="#productos-crear" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-plus mr-2 text-sm"></i>
+                  <span>Crear Producto</span>
+                </a>
+              </li>
+              <li>
+                <a href="#productos-categorias" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-tags mr-2 text-sm"></i>
+                  <span>Categorías</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          
+          <!-- Otros módulos -->
+          <li>
+            <a href="#configuracion" class="sidebar-menu-item flex items-center p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <i class="fas fa-cog w-6 h-6 text-center text-primary-400"></i>
+              <span class="ml-3">Configuración</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="p-4 border-t border-gray-700 sidebar-footer">
+        <a href="#help" class="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-question-circle mr-2"></i>
+          <span>Ayuda y Soporte</span>
+        </a>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 overflow-y-auto p-6 transition-all duration-300 relative">
+      <div id="dashboard-section" class="space-y-6">
+        <!-- Heading -->
+        <div class="flex justify-between items-center mb-6 animate-fadeIn">
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Panel de Administración</h1>
+          <div class="text-gray-500 text-sm">
+            <span id="current-date">Viernes, 9 de mayo de 2025</span>
+          </div>
+        </div>
+        
+        <!-- Stats cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fadeIn" style="animation-delay: 0.1s">
+          <!-- Stat Card 1 -->
+          <div class="bg-white rounded-lg shadow p-6 card-hover flex items-center">
+            <div class="rounded-full p-3 bg-blue-100 mr-4">
+              <i class="fas fa-users text-blue-600 text-xl"></i>
+            </div>
+            <div>
+              <div class="text-sm text-gray-500">Usuarios</div>
+              <div class="text-2xl font-bold text-gray-800">128</div>
+              <div class="text-xs text-green-600">
+                <i class="fas fa-arrow-up mr-1"></i>
+                <span>12% este mes</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Stat Card 2 -->
+          <div class="bg-white rounded-lg shadow p-6 card-hover flex items-center">
+            <div class="rounded-full p-3 bg-green-100 mr-4">
+              <i class="fas fa-box text-green-600 text-xl"></i>
+            </div>
+            <div>
+              <div class="text-sm text-gray-500">Productos</div>
+              <div class="text-2xl font-bold text-gray-800">356</div>
+              <div class="text-xs text-green-600">
+                <i class="fas fa-arrow-up mr-1"></i>
+                <span>5% este mes</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Stat Card 3 -->
+          <div class="bg-white rounded-lg shadow p-6 card-hover flex items-center">
+            <div class="rounded-full p-3 bg-purple-100 mr-4">
+              <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
+            </div>
+            <div>
+              <div class="text-sm text-gray-500">Ventas</div>
+              <div class="text-2xl font-bold text-gray-800">$24,430</div>
+              <div class="text-xs text-red-600">
+                <i class="fas fa-arrow-down mr-1"></i>
+                <span>3% este mes</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Stat Card 4 -->
+          <div class="bg-white rounded-lg shadow p-6 card-hover flex items-center">
+            <div class="rounded-full p-3 bg-amber-100 mr-4">
+              <i class="fas fa-ticket text-amber-600 text-xl"></i>
+            </div>
+            <div>
+              <div class="text-sm text-gray-500">Tickets</div>
+              <div class="text-2xl font-bold text-gray-800">8</div>
+              <div class="text-xs text-blue-600">
+                <i class="fas fa-minus mr-1"></i>
+                <span>Sin cambios</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Content Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn" style="animation-delay: 0.2s">
+          <!-- Section 1: Usuarios recientes -->
+          <div class="lg:col-span-2 bg-white rounded-lg shadow">
+            <div class="p-4 border-b flex justify-between items-center">
+              <h2 class="font-bold text-gray-800">Usuarios recientes</h2>
+              <a href="#ver-todos" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Ver todos</a>
+            </div>
+            <div class="p-4">
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <tr>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Maria+Lopez&background=F59E0B&color=ffffff" alt="María López">
+                          <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900">María López</div>
+                            <div class="text-xs text-gray-500">mlopez@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="text-sm text-gray-900">Administrador</span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Activo</span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex space-x-2">
+                          <button class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></button>
+                          <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Juan+Perez&background=3B82F6&color=ffffff" alt="Juan Pérez">
+                          <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900">Juan Pérez</div>
+                            <div class="text-xs text-gray-500">jperez@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="text-sm text-gray-900">Vendedor</span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Activo</span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex space-x-2">
+                          <button class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></button>
+                          <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Ana+Martinez&background=8B5CF6&color=ffffff" alt="Ana Martínez">
+                          <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900">Ana Martínez</div>
+                            <div class="text-xs text-gray-500">amartinez@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="text-sm text-gray-900">Soporte</span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactivo</span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex space-x-2">
+                          <button class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></button>
+                          <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Section 2: Actividad reciente -->
+          <div class="bg-white rounded-lg shadow">
+            <div class="p-4 border-b">
+              <h2 class="font-bold text-gray-800">Actividad reciente</h2>
+            </div>
+            <div class="p-4">
+              <ul class="space-y-4">
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                    <i class="fas fa-user-plus text-blue-600"></i>
+                  </span>
+                  <div>
+                    <p class="text-sm font-medium">Nuevo usuario registrado</p>
+                    <p class="text-xs text-gray-500">Carlos Gómez se ha registrado en el sistema</p>
+                    <p class="text-xs text-gray-400 mt-1">Hace 2 horas</p>
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                    <i class="fas fa-box text-green-600"></i>
+                  </span>
+                  <div>
+                    <p class="text-sm font-medium">Nuevo producto añadido</p>
+                    <p class="text-xs text-gray-500">María López añadió "Teclado Mecánico Pro"</p>
+                    <p class="text-xs text-gray-400 mt-1">Hace 5 horas</p>
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+                    <i class="fas fa-wrench text-amber-600"></i>
+                  </span>
+                  <div>
+                    <p class="text-sm font-medium">Mantenimiento programado</p>
+                    <p class="text-xs text-gray-500">El sistema estará en mantenimiento el domingo</p>
+                    <p class="text-xs text-gray-400 mt-1">Hace 12 horas</p>
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="flex-shrink-0 h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                    <i class="fas fa-shopping-cart text-purple-600"></i>
+                  </span>
+                  <div>
+                    <p class="text-sm font-medium">Nueva venta completada</p>
+                    <p class="text-xs text-gray-500">Venta #10245 por $1,250.00</p>
+                    <p class="text-xs text-gray-400 mt-1">Hace 1 día</p>
+                  </div>
+                </li>
+              </ul>
+              <div class="mt-4 text-center">
+                <a href="#todas-actividades" class="text-sm text-primary-600 hover:text-primary-800">Ver todas las actividades</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Módulos de acceso rápido -->
+        <div class="animate-fadeIn" style="animation-delay: 0.3s">
+          <h2 class="text-xl font-bold text-gray-800 mb-4">Acceso rápido</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Módulo 1 -->
+            <div class="bg-gradient-to-r from-blue-500 to-primary-600 rounded-lg shadow text-white p-6 card-hover">
+              <div class="flex justify-between items-start">
+                <div class="rounded-full bg-white/20 p-3">
+                  <i class="fas fa-user-cog text-xl"></i>
+                </div>
+                <span class="text-xs bg-white/20 px-2 py-1 rounded">Admin</span>
+              </div>
+              <h3 class="text-lg font-semibold mt-4">Gestión de Usuarios</h3>
+              <p class="text-white/80 text-sm mt-2">Administra usuarios y asigna roles</p>
+              <a href="#usuarios" class="mt-4 flex items-center text-sm font-medium text-white hover:text-blue-100 transition-colors">
+                Administrar
+                <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+            
+            <!-- Módulo 2 -->
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow text-white p-6 card-hover">
+              <div class="flex justify-between items-start">
+                <div class="rounded-full bg-white/20 p-3">
+                  <i class="fas fa-box-open text-xl"></i>
+                </div>
+                <span class="text-xs bg-white/20 px-2 py-1 rounded">Admin</span>
+              </div>
+              <h3 class="text-lg font-semibold mt-4">Gestión de Productos</h3>
+              <p class="text-white/80 text-sm mt-2">Añade y actualiza productos</p>
+              <a href="#productos" class="mt-4 flex items-center text-sm font-medium text-white hover:text-green-100 transition-colors">
+                Administrar
+                <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+            
+            <!-- Módulo 3 -->
+            <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg shadow text-white p-6 card-hover">
+              <div class="flex justify-between items-start">
+                <div class="rounded-full bg-white/20 p-3">
+                  <i class="fas fa-chart-bar text-xl"></i>
+                </div>
+                <span class="text-xs bg-white/20 px-2 py-1 rounded">Admin</span>
+              </div>
+              <h3 class="text-lg font-semibold mt-4">Reportes</h3>
+              <p class="text-white/80 text-sm mt-2">Visualiza informes y estadísticas</p>
+              <a href="#reportes" class="mt-4 flex items-center text-sm font-medium text-white hover:text-amber-100 transition-colors">
+                Ver reportes
+                <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+            
+           <!-- Módulo 4 -->
+            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow text-white p-6 card-hover">
+              <div class="flex justify-between items-start">
+                <div class="rounded-full bg-white/20 p-3">
+                  <i class="fas fa-cog text-xl"></i>
+                </div>
+                <span class="text-xs bg-white/20 px-2 py-1 rounded">Admin</span>
+              </div>
+              <h3 class="text-lg font-semibold mt-4">Configuración</h3>
+              <p class="text-white/80 text-sm mt-2">Ajusta la configuración del sistema</p>
+              <a href="#configuracion" class="mt-4 flex items-center text-sm font-medium text-white hover:text-purple-100 transition-colors">
+                Configurar
+                <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Notification panel (hidden by default) -->
+  <div id="notification-panel" class="notification fixed top-16 right-4 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-20">
+    <div class="flex justify-between items-center p-4 bg-primary-600 text-white">
+      <h3 class="font-semibold">Notificaciones</h3>
+      <button id="close-notification" class="text-white hover:text-gray-200">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-4 max-h-96 overflow-y-auto">
+      <div class="divide-y divide-gray-200">
+        <!-- Notification item 1 -->
+        <div class="py-3 flex items-start">
+          <div class="flex-shrink-0 h-8 w-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+            <i class="fas fa-bell text-red-600"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium">Alerta de seguridad</p>
+            <p class="text-xs text-gray-500">Se ha detectado un intento de acceso no autorizado.</p>
+            <p class="text-xs text-gray-400 mt-1">Hace 30 minutos</p>
+          </div>
+        </div>
+        
+        <!-- Notification item 2 -->
+        <div class="py-3 flex items-start">
+          <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+            <i class="fas fa-check text-green-600"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium">Actualización completada</p>
+            <p class="text-xs text-gray-500">El sistema se ha actualizado correctamente a la versión 2.4.0.</p>
+            <p class="text-xs text-gray-400 mt-1">Hace 2 horas</p>
+          </div>
+        </div>
+        
+        <!-- Notification item 3 -->
+        <div class="py-3 flex items-start">
+          <div class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+            <i class="fas fa-user-plus text-blue-600"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium">Nuevo usuario</p>
+            <p class="text-xs text-gray-500">Laura Jiménez se ha registrado en el sistema.</p>
+            <p class="text-xs text-gray-400 mt-1">Hace 5 horas</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4 text-center">
+        <a href="#todas-notificaciones" class="text-sm text-primary-600 hover:text-primary-800">Ver todas las notificaciones</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simular tiempo de carga
+      setTimeout(() => {
+        document.getElementById('page-loader').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('page-loader').style.display = 'none';
+        }, 300);
+      }, 1500);
+      
+      // Toggle del sidebar
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('main-content');
+      
+      sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        
+        if (sidebar.classList.contains('collapsed')) {
+          mainContent.style.marginLeft = '5rem';
+        } else {
+          mainContent.style.marginLeft = '0';
+        }
+      });
+      
+      // Toggle de los submenús en el sidebar
+      const dropdownButtons = document.querySelectorAll('.sidebar-dropdown-btn');
+      
+      dropdownButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const submenu = this.nextElementSibling;
+          const icon = this.querySelector('.fa-chevron-down');
+          
+          // Cerrar otros submenús abiertos
+          const activeSubmenus = document.querySelectorAll('.sidebar-submenu.active');
+          activeSubmenus.forEach(menu => {
+            if (menu !== submenu) {
+              menu.classList.remove('active');
+              const otherIcon = menu.previousElementSibling.querySelector('.fa-chevron-down');
+              otherIcon.style.transform = 'rotate(0deg)';
+            }
+          });
+          
+          // Toggle del submenú actual
+          submenu.classList.toggle('active');
+          
+          // Rotar icono
+          if (submenu.classList.contains('active')) {
+            icon.style.transform = 'rotate(180deg)';
+          } else {
+            icon.style.transform = 'rotate(0deg)';
+          }
+        });
+      });
+      
+      // Dropdown del menú de usuario
+      const userMenuButton = document.getElementById('user-menu-button');
+      const userDropdown = document.getElementById('user-dropdown');
+      
+      userMenuButton.addEventListener('click', function() {
+        userDropdown.classList.toggle('hidden');
+      });
+      
+      // Cerrar menú al hacer clic fuera
+      document.addEventListener('click', function(event) {
+        if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+          userDropdown.classList.add('hidden');
+        }
+      });
+      
+      // Panel de notificaciones
+      const notificationBtn = document.getElementById('notification-btn');
+      const notificationPanel = document.getElementById('notification-panel');
+      const closeNotification = document.getElementById('close-notification');
+      
+      notificationBtn.addEventListener('click', function() {
+        notificationPanel.classList.toggle('show');
+      });
+      
+      closeNotification.addEventListener('click', function() {
+        notificationPanel.classList.remove('show');
+      });
+      
+      // Cerrar panel de notificaciones al hacer clic fuera
+      document.addEventListener('click', function(event) {
+        if (!notificationBtn.contains(event.target) && !notificationPanel.contains(event.target)) {
+          notificationPanel.classList.remove('show');
+        }
+      });
+      
+      // Establecer fecha actual
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const currentDate = new Date().toLocaleDateString('es-ES', options);
+      document.getElementById('current-date').textContent = currentDate;
+      
+      // Hacer que los enlaces del menú carguen contenido
+      const menuLinks = document.querySelectorAll('.sidebar-menu-item, .sidebar-submenu a');
+      
+      menuLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Aquí se cargaría el contenido dinámicamente o se navegaría a otra página
+          // Por ahora solo mostramos una notificación
+          showToast(Cargando `${this.textContent.trim()}...`, 'info');
+          
+          // Marcar como activo
+          menuLinks.forEach(l => l.classList.remove('bg-primary-700'));
+          this.classList.add('bg-primary-700');
+        });
+      });
+      
+      // Función para mostrar toast de notificación
+      function showToast(message, type = 'info') {
+        // Crear elemento toast
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 left-4 px-4 py-2 rounded shadow-lg z-50 ${
+          type === 'success' ? 'bg-green-600' : 
+          type === 'error' ? 'bg-red-600' : 
+          type === 'warning' ? 'bg-amber-600' : 
+          'bg-primary-600'
+        } text-white`;
+        
+        toast.innerHTML = `
+          <div class="flex items-center">
+            <i class="fas ${
+              type === 'success' ? 'fa-check-circle' : 
+              type === 'error' ? 'fa-exclamation-circle' : 
+              type === 'warning' ? 'fa-exclamation-triangle' : 
+              'fa-info-circle'
+            } mr-2"></i>
+            <span>${message}</span>
+          </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Animación de entrada
+        setTimeout(() => {
+          toast.style.transform = 'translateY(-20px)';
+          toast.style.opacity = '1';
+        }, 100);
+        
+        // Eliminar después de 3 segundos
+        setTimeout(() => {
+          toast.style.transform = 'translateY(0)';
+          toast.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(toast);
+          }, 300);
+        }, 3000);
+      }
+      
+      // Inicializar animación al cargar
+      function setupAnimations() {
+        const animatedElements = document.querySelectorAll('.animate-fadeIn');
+        animatedElements.forEach((el, index) => {
+          el.style.opacity = '0';
+          setTimeout(() => {
+            el.style.opacity = '1';
+          }, 100 * index);
+        });
+      }
+      
+      setupAnimations();
+    });
+  </script>
+</body>
+</html>

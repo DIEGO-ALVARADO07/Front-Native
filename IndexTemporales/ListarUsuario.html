@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoMarket - Gestión de Usuarios</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS personalizado -->
+  <style>
+    /* Animaciones y efectos */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideInLeft {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    .animate-slideInLeft {
+      animation: slideInLeft 0.3s ease-out forwards;
+    }
+    
+    .animate-pulse-slow {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .sidebar.collapsed {
+      width: 5rem;
+    }
+    
+    .sidebar.collapsed .sidebar-logo span,
+    .sidebar.collapsed .sidebar-menu-item span,
+    .sidebar.collapsed .sidebar-submenu,
+    .sidebar.collapsed .sidebar-footer span {
+      display: none;
+    }
+    
+    .sidebar-submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+    
+    .sidebar-submenu.active {
+      max-height: 500px;
+    }
+    
+    /* Table animations */
+    .table-row {
+      transition: all 0.2s ease;
+    }
+    
+    .table-row:hover {
+      background-color: #f0f9ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+    }
+    
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 120px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* Loader */
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #FFF;
+      border-bottom-color: #0ea5e9;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Checkbox personalizado */
+    .custom-checkbox {
+      position: relative;
+      padding-left: 30px;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .custom-checkbox input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: #eee;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .custom-checkbox:hover input ~ .checkmark {
+      background-color: #ccc;
+    }
+    
+    .custom-checkbox input:checked ~ .checkmark {
+      background-color: #0ea5e9;
+    }
+    
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    
+    .custom-checkbox input:checked ~ .checkmark:after {
+      display: block;
+    }
+    
+    .custom-checkbox .checkmark:after {
+      left: 7px;
+      top: 3px;
+      width: 6px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    
+    /* Switch toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #0ea5e9;
+    }
+    
+    input:focus + .slider {
+      box-shadow: 0 0 1px #0ea5e9;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    /* Modal de usuario */
+    .modal-overlay {
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-container {
+      transform: translateY(-50px);
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active .modal-container {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+  <!-- Spinner de carga inicial -->
+  <div id="page-loader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    <div class="text-center">
+      <span class="loader"></span>
+      <p class="mt-4 text-gray-600">Cargando usuarios...</p>
+    </div>
+  </div>
+  
+  <!-- Header/Navbar -->
+  <header class="bg-white shadow-sm z-10">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center py-3 px-4">
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-3 text-gray-500 hover:text-primary-600 focus:outline-none">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <div class="flex items-center">
+            <span class="text-2xl font-bold text-primary-600">Neo<span class="text-gray-800">Market</span></span>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="notification-btn" class="relative mr-4 text-gray-500 hover:text-primary-600">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+          </button>
+          <div class="relative" id="user-menu">
+            <button type="button" class="flex items-center text-sm rounded-full focus:outline-none" id="user-menu-button">
+              <span class="mr-2 text-gray-700 hidden md:block">Administrador</span>
+              <img class="h-8 w-8 rounded-full border-2 border-primary-500" src="https://ui-avatars.com/api/?name=Admin&background=0284c7&color=ffffff" alt="Usuario">
+            </button>
+            <!-- Dropdown menu (hidden by default) -->
+            <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10" id="user-dropdown">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+              <hr class="my-1">
+              <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Cerrar Sesión</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar bg-gray-800 text-white w-64 flex flex-col h-full overflow-hidden">
+      <div class="p-4 border-b border-gray-700 sidebar-logo flex items-center">
+        <i class="fas fa-shield-alt text-xl text-primary-400 mr-3"></i>
+        <span class="font-bold text-lg">Panel Admin</span>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto py-4 px-3">
+        <ul class="space-y-2">
+          <li>
+            <a href="admin-dashboard.html" class="sidebar-menu-item flex items-center p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <i class="fas fa-tachometer-alt w-6 h-6 text-center text-primary-400"></i>
+              <span class="ml-3">Dashboard</span>
+            </a>
+          </li>
+          
+          <li class="mt-4">
+            <div class="flex items-center p-2 text-gray-400 text-xs uppercase tracking-wider">
+              <span>Menú Principal</span>
+              <div class="flex-grow ml-2 h-px bg-gray-700"></div>
+            </div>
+          </li>
+          
+          <!-- Módulo de Seguridad -->
+          <li>
+            <button type="button" class="sidebar-menu-item sidebar-dropdown-btn flex items-center justify-between w-full p-2 rounded-lg bg-gray-700 group transition-all text-white">
+              <div class="flex items-center">
+                <i class="fas fa-lock w-6 h-6 text-center text-primary-400"></i>
+                <span class="ml-3">Seguridad</span>
+              </div>
+              <i class="fas fa-chevron-down transition-transform" style="transform: rotate(180deg);"></i>
+            </button>
+            <ul class="sidebar-submenu pl-10 pr-2 pb-1 pt-2 active">
+              <li>
+                <a href="#" class="flex items-center p-2 rounded-lg text-white bg-primary-600 transition-all">
+                  <i class="fas fa-users mr-2 text-sm"></i>
+                  <span>Listar Usuarios</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-user-plus mr-2 text-sm"></i>
+                  <span>Crear Usuario</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-user-tag mr-2 text-sm"></i>
+                  <span>Roles y Permisos</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          
+          <!-- Módulo de Productos -->
+          <li>
+            <button type="button" class="sidebar-menu-item sidebar-dropdown-btn flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <div class="flex items-center">
+                <i class="fas fa-box w-6 h-6 text-center text-primary-400"></i>
+                <span class="ml-3">Productos</span>
+              </div>
+              <i class="fas fa-chevron-down transition-transform"></i>
+            </button>
+            <ul class="sidebar-submenu pl-10 pr-2 pb-1 pt-2">
+              <li>
+                <a href="#" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-list mr-2 text-sm"></i>
+                  <span>Listar Productos</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-plus mr-2 text-sm"></i>
+                  <span>Crear Producto</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 transition-all">
+                  <i class="fas fa-tags mr-2 text-sm"></i>
+                  <span>Categorías</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          
+          <!-- Otros módulos -->
+          <li>
+            <a href="#" class="sidebar-menu-item flex items-center p-2 rounded-lg hover:bg-gray-700 group transition-all text-white">
+              <i class="fas fa-cog w-6 h-6 text-center text-primary-400"></i>
+              <span class="ml-3">Configuración</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="p-4 border-t border-gray-700 sidebar-footer">
+        <a href="#help" class="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-question-circle mr-2"></i>
+          <span>Ayuda y Soporte</span>
+        </a>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 overflow-y-auto p-6 transition-all duration-300 relative">
+      <div class="space-y-6">
+        <!-- Encabezado de la página -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fadeIn">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Gestión de Usuarios</h1>
+            <p class="text-gray-500 mt-1">Administra todos los usuarios registrados en el sistema</p>
+          </div>
+          
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button id="export-btn" class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition focus:outline-none focus:ring-2 focus:ring-gray-300">
+              <i class="fas fa-file-export mr-2"></i>
+              <span>Exportar</span>
+            </button>
+            
+            <button id="add-user-btn" class="inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <i class="fas fa-user-plus mr-2"></i>
+              <span>Nuevo Usuario</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Filtros y búsqueda -->
+        <div class="bg-white rounded-lg shadow-sm p-4 animate-fadeIn" style="animation-delay: 0.1s">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="col-span-1 md:col-span-2">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input id="search-input" type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Buscar usuario por nombre, email o rol...">
+              </div>
+            </div>
+            
+            <div class="col-span-1 grid grid-cols-2 gap-4">
+              <div>
+                <select id="filter-role" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                  <option value="">Todos los roles</option>
+                  <option value="admin">Administrador</option>
+                  <option value="manager">Gerente</option>
+                  <option value="employee">Empleado</option>
+                  <option value="client">Cliente</option>
+                </select>
+              </div>
+              
+              <div>
+                <select id="filter-status" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                  <option value="">Todos los estados</option>
+                  <option value="active">Activo</option>
+                  <option value="inactive">Inactivo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tabla de usuarios -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.2s">
+          <div class="p-4 border-b flex justify-between items-center">
+            <h2 class="font-bold text-gray-800">Lista de Usuarios</h2>
+            <span id="user-count" class="text-sm text-gray-500">Mostrando 8 usuarios</span>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <label class="custom-checkbox">
+                      <input id="select-all" type="checkbox">
+                      <span class="checkmark"></span>
+                    </label>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Usuario
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rol
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Último acceso
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
+                <!-- Fila 1 -->
+                <tr class="table-row">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" class="user-checkbox" data-id="1">
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Maria+Lopez&background=F59E0B&color=ffffff" alt="María López">
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">María López</div>
+                        <div class="text-sm text-gray-500">mlopez@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                      Administrador
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    Hace 2 horas
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="1">
+                        <i class="fas fa-edit"></i>
+                        <span class="tooltip-text">Editar</span>
+                      </button>
+                      <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="1">
+                        <i class="fas fa-trash"></i>
+                        <span class="tooltip-text">Eliminar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Fila 2 -->
+                <tr class="table-row">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" class="user-checkbox" data-id="2">
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Juan+Perez&background=3B82F6&color=ffffff" alt="Juan Pérez">
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">Juan Pérez</div>
+                        <div class="text-sm text-gray-500">jperez@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                      Gerente
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    Hace 1 día
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="2">
+                        <i class="fas fa-edit"></i>
+                        <span class="tooltip-text">Editar</span>
+                      </button>
+                      <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="2">
+                        <i class="fas fa-trash"></i>
+                        <span class="tooltip-text">Eliminar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Fila 3 -->
+                <tr class="table-row">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" class="user-checkbox" data-id="3">
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Ana+Martinez&background=8B5CF6&color=ffffff" alt="Ana Martínez">
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">Ana Martínez</div>
+                        <div class="text-sm text-gray-500">amartinez@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Empleado
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="switch">
+                      <input type="checkbox">
+                      <span class="slider"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    Hace 3 días
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="3">
+                        <i class="fas fa-edit"></i>
+                        <span class="tooltip-text">Editar</span>
+                      </button>
+                      <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="3">
+                        <i class="fas fa-trash"></i>
+                        <span class="tooltip-text">Eliminar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Fila 4 -->
+                <tr class="table-row">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" class="user-checkbox" data-id="4">
+                      <span class="checkmark"></span>
+                    </label>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Carlos+Rodriguez&background=EF4444&color=ffffff" alt="Carlos Rodríguez">
+                        </div>
+                     <div class="ml-4">
+                       <div class="text-sm font-medium text-gray-900">Carlos Rodríguez</div>
+                       <div class="text-sm text-gray-500">crodriguez@example.com</div>
+                     </div>
+                   </div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                     Empleado
+                   </span>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="switch">
+                     <input type="checkbox" checked>
+                     <span class="slider"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                   Hace 1 semana
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                   <div class="flex space-x-2">
+                     <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="4">
+                       <i class="fas fa-edit"></i>
+                       <span class="tooltip-text">Editar</span>
+                     </button>
+                     <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="4">
+                       <i class="fas fa-trash"></i>
+                       <span class="tooltip-text">Eliminar</span>
+                     </button>
+                   </div>
+                 </td>
+               </tr>
+               
+               <!-- Fila 5 -->
+               <tr class="table-row">
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="custom-checkbox">
+                     <input type="checkbox" class="user-checkbox" data-id="5">
+                     <span class="checkmark"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center">
+                     <div class="flex-shrink-0 h-10 w-10">
+                       <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Laura+Sanchez&background=10B981&color=ffffff" alt="Laura Sánchez">
+                     </div>
+                     <div class="ml-4">
+                       <div class="text-sm font-medium text-gray-900">Laura Sánchez</div>
+                       <div class="text-sm text-gray-500">lsanchez@example.com</div>
+                     </div>
+                   </div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                     Cliente
+                   </span>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="switch">
+                     <input type="checkbox" checked>
+                     <span class="slider"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                   Hace 2 semanas
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                   <div class="flex space-x-2">
+                     <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="5">
+                       <i class="fas fa-edit"></i>
+                       <span class="tooltip-text">Editar</span>
+                     </button>
+                     <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="5">
+                       <i class="fas fa-trash"></i>
+                       <span class="tooltip-text">Eliminar</span>
+                     </button>
+                   </div>
+                 </td>
+               </tr>
+               
+               <!-- Fila 6 -->
+               <tr class="table-row">
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="custom-checkbox">
+                     <input type="checkbox" class="user-checkbox" data-id="6">
+                     <span class="checkmark"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center">
+                     <div class="flex-shrink-0 h-10 w-10">
+                       <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Pedro+Gomez&background=6366F1&color=ffffff" alt="Pedro Gómez">
+                     </div>
+                     <div class="ml-4">
+                       <div class="text-sm font-medium text-gray-900">Pedro Gómez</div>
+                       <div class="text-sm text-gray-500">pgomez@example.com</div>
+                     </div>
+                   </div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                     Cliente
+                   </span>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="switch">
+                     <input type="checkbox">
+                     <span class="slider"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                   Hace 1 mes
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                   <div class="flex space-x-2">
+                     <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="6">
+                       <i class="fas fa-edit"></i>
+                       <span class="tooltip-text">Editar</span>
+                     </button>
+                     <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="6">
+                       <i class="fas fa-trash"></i>
+                       <span class="tooltip-text">Eliminar</span>
+                     </button>
+                   </div>
+                 </td>
+               </tr>
+               
+               <!-- Fila 7 -->
+               <tr class="table-row">
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="custom-checkbox">
+                     <input type="checkbox" class="user-checkbox" data-id="7">
+                     <span class="checkmark"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center">
+                     <div class="flex-shrink-0 h-10 w-10">
+                       <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Sofia+Diaz&background=A855F7&color=ffffff" alt="Sofía Díaz">
+                     </div>
+                     <div class="ml-4">
+                       <div class="text-sm font-medium text-gray-900">Sofía Díaz</div>
+                       <div class="text-sm text-gray-500">sdiaz@example.com</div>
+                     </div>
+                   </div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                     Gerente
+                   </span>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="switch">
+                     <input type="checkbox" checked>
+                     <span class="slider"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                   Hace 2 días
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                   <div class="flex space-x-2">
+                     <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="7">
+                       <i class="fas fa-edit"></i>
+                       <span class="tooltip-text">Editar</span>
+                     </button>
+                     <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="7">
+                       <i class="fas fa-trash"></i>
+                       <span class="tooltip-text">Eliminar</span>
+                     </button>
+                   </div>
+                 </td>
+               </tr>
+               
+               <!-- Fila 8 -->
+               <tr class="table-row">
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="custom-checkbox">
+                     <input type="checkbox" class="user-checkbox" data-id="8">
+                     <span class="checkmark"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center">
+                     <div class="flex-shrink-0 h-10 w-10">
+                       <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Mario+Vargas&background=F97316&color=ffffff" alt="Mario Vargas">
+                     </div>
+                     <div class="ml-4">
+                       <div class="text-sm font-medium text-gray-900">Mario Vargas</div>
+                       <div class="text-sm text-gray-500">mvargas@example.com</div>
+                     </div>
+                   </div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                     Administrador
+                   </span>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <label class="switch">
+                     <input type="checkbox" checked>
+                     <span class="slider"></span>
+                   </label>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                   Hace 6 horas
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                   <div class="flex space-x-2">
+                     <button class="text-blue-600 hover:text-blue-900 tooltip edit-user" data-id="8">
+                       <i class="fas fa-edit"></i>
+                       <span class="tooltip-text">Editar</span>
+                     </button>
+                     <button class="text-red-600 hover:text-red-900 tooltip delete-user" data-id="8">
+                       <i class="fas fa-trash"></i>
+                       <span class="tooltip-text">Eliminar</span>
+                     </button>
+                   </div>
+                 </td>
+               </tr>
+             </tbody>
+           </table>
+         </div>
+         
+         <!-- Paginación -->
+         <div class="px-6 py-3 flex justify-between items-center border-t">
+           <div>
+             <p class="text-sm text-gray-700">
+               Mostrando <span class="font-medium">1</span> a <span class="font-medium">8</span> de <span class="font-medium">20</span> usuarios
+             </p>
+           </div>
+           <div class="flex space-x-1">
+             <button class="px-2 py-1 rounded border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50" disabled>
+               <span class="sr-only">Anterior</span>
+               <i class="fas fa-chevron-left"></i>
+             </button>
+             <button class="px-3 py-1 rounded border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+               1
+             </button>
+             <button class="px-3 py-1 rounded border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+               2
+             </button>
+             <button class="px-3 py-1 rounded border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+               3
+             </button>
+             <button class="px-2 py-1 rounded border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+               <span class="sr-only">Siguiente</span>
+               <i class="fas fa-chevron-right"></i>
+             </button>
+           </div>
+         </div>
+       </div>
+     </div>
+   </main>
+ </div>
+ 
+ <!-- Modal para crear/editar usuario -->
+ <div id="user-modal" class="modal-overlay fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+   <div class="modal-container bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
+     <div class="p-4 border-b">
+       <div class="flex justify-between items-center">
+         <h3 class="text-lg font-medium text-gray-900" id="modal-title">Nuevo Usuario</h3>
+         <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+           <i class="fas fa-times"></i>
+         </button>
+       </div>
+     </div>
+     
+     <div class="p-4">
+       <form id="user-form" class="space-y-4">
+         <input type="hidden" id="user-id">
+         
+         <div class="flex flex-col md:flex-row gap-4">
+           <div class="flex-1">
+             <label for="user-name" class="block text-sm font-medium text-gray-700">Nombre</label>
+             <input type="text" id="user-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+           </div>
+           
+           <div class="flex-1">
+             <label for="user-last-name" class="block text-sm font-medium text-gray-700">Apellido</label>
+             <input type="text" id="user-last-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+           </div>
+         </div>
+         
+         <div>
+           <label for="user-email" class="block text-sm font-medium text-gray-700">Email</label>
+           <input type="email" id="user-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+         </div>
+         
+         <div>
+           <label for="user-role" class="block text-sm font-medium text-gray-700">Rol</label>
+           <select id="user-role" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+             <option value="admin">Administrador</option>
+             <option value="manager">Gerente</option>
+             <option value="employee">Empleado</option>
+             <option value="client">Cliente</option>
+           </select>
+         </div>
+         
+         <div class="flex items-center">
+           <input type="checkbox" id="user-active" class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+           <label for="user-active" class="ml-2 block text-sm text-gray-900">Usuario activo</label>
+         </div>
+         
+         <div id="password-fields" class="space-y-4">
+           <div>
+             <label for="user-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+             <input type="password" id="user-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+           </div>
+           
+           <div>
+             <label for="user-password-confirm" class="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
+             <input type="password" id="user-password-confirm" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+           </div>
+         </div>
+       </form>
+     </div>
+     
+     <div class="p-4 border-t flex justify-end space-x-3">
+       <button id="cancel-user" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+         Cancelar
+       </button>
+       <button id="save-user" class="px-4 py-2 bg-primary-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+         Guardar
+       </button>
+     </div>
+   </div>
+ </div>
+ 
+ <!-- Modal de confirmación para eliminar -->
+ <div id="delete-modal" class="modal-overlay fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+   <div class="modal-container bg-white rounded-lg shadow-lg max-w-md w-full mx-4 p-6">
+     <div class="text-center">
+       <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+         <i class="fas fa-exclamation-triangle text-red-600"></i>
+       </div>
+       <h3 class="text-lg font-medium text-gray-900 mb-2">¿Eliminar usuario?</h3>
+       <p class="text-sm text-gray-500 mb-6">
+         ¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.
+       </p>
+       <div class="flex justify-center space-x-3">
+         <button id="cancel-delete" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+           Cancelar
+         </button>
+         <button id="confirm-delete" class="px-4 py-2 bg-red-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+           Eliminar
+         </button>
+       </div>
+     </div>
+   </div>
+ </div>
+ 
+ <!-- Script -->
+ <script>
+   document.addEventListener('DOMContentLoaded', function() {
+     // Simular tiempo de carga
+     setTimeout(() => {
+       document.getElementById('page-loader').style.opacity = '0';
+       setTimeout(() => {
+         document.getElementById('page-loader').style.display = 'none';
+       }, 300);
+     }, 1200);
+     
+     // Toggle del sidebar
+     const sidebarToggle = document.getElementById('sidebar-toggle');
+     const sidebar = document.getElementById('sidebar');
+     const mainContent = document.getElementById('main-content');
+     
+     sidebarToggle.addEventListener('click', function() {
+       sidebar.classList.toggle('collapsed');
+       
+       if (sidebar.classList.contains('collapsed')) {
+         mainContent.style.marginLeft = '5rem';
+       } else {
+         mainContent.style.marginLeft = '0';
+       }
+     });
+     
+     // Toggle de los submenús en el sidebar
+     const dropdownButtons = document.querySelectorAll('.sidebar-dropdown-btn');
+     
+     dropdownButtons.forEach(button => {
+       button.addEventListener('click', function() {
+         const submenu = this.nextElementSibling;
+         const icon = this.querySelector('.fa-chevron-down');
+         
+         // Cerrar otros submenús abiertos
+         const activeSubmenus = document.querySelectorAll('.sidebar-submenu.active');
+         activeSubmenus.forEach(menu => {
+           if (menu !== submenu) {
+             menu.classList.remove('active');
+             const otherIcon = menu.previousElementSibling.querySelector('.fa-chevron-down');
+             if (otherIcon) otherIcon.style.transform = 'rotate(0deg)';
+           }
+         });
+         
+         // Toggle del submenú actual
+         submenu.classList.toggle('active');
+         
+         // Rotar icono
+         if (submenu.classList.contains('active')) {
+           icon.style.transform = 'rotate(180deg)';
+         } else {
+           icon.style.transform = 'rotate(0deg)';
+         }
+       });
+     });
+     
+     // Dropdown del menú de usuario
+     const userMenuButton = document.getElementById('user-menu-button');
+     const userDropdown = document.getElementById('user-dropdown');
+     
+     userMenuButton.addEventListener('click', function() {
+       userDropdown.classList.toggle('hidden');
+     });
+     
+     // Cerrar menú al hacer clic fuera
+     document.addEventListener('click', function(event) {
+       if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+         userDropdown.classList.add('hidden');
+       }
+     });
+     
+     // Seleccionar todos los usuarios
+     const selectAllCheckbox = document.getElementById('select-all');
+     const userCheckboxes = document.querySelectorAll('.user-checkbox');
+     
+     selectAllCheckbox.addEventListener('change', function() {
+       userCheckboxes.forEach(checkbox => {
+         checkbox.checked = selectAllCheckbox.checked;
+       });
+     });
+     
+     // Búsqueda de usuarios
+     const searchInput = document.getElementById('search-input');
+     
+     searchInput.addEventListener('input', function() {
+       const searchTerm = this.value.toLowerCase();
+       const tableRows = document.querySelectorAll('#users-table-body tr');
+       
+       tableRows.forEach(row => {
+         const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+         
+         if (name.includes(searchTerm)) {
+           row.style.display = '';
+         } else {
+           row.style.display = 'none';
+         }
+       });
+       
+       // Actualizar contador
+       updateUserCount();
+     });
+     
+     // Filtrar por rol
+     const roleFilter = document.getElementById('filter-role');
+     
+     roleFilter.addEventListener('change', function() {
+       const selectedRole = this.value.toLowerCase();
+       const tableRows = document.querySelectorAll('#users-table-body tr');
+       
+       tableRows.forEach(row => {
+         if (!selectedRole) {
+           row.style.display = '';
+           return;
+         }
+         
+         const role = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+         
+         if (role.includes(selectedRole)) {
+           row.style.display = '';
+         } else {
+           row.style.display = 'none';
+         }
+       });
+       
+       // Actualizar contador
+       updateUserCount();
+     });
+     
+     // Filtrar por estado
+     const statusFilter = document.getElementById('filter-status');
+     
+     statusFilter.addEventListener('change', function() {
+       const selectedStatus = this.value.toLowerCase();
+       const tableRows = document.querySelectorAll('#users-table-body tr');
+       
+       tableRows.forEach(row => {
+         if (!selectedStatus) {
+           row.style.display = '';
+           return;
+         }
+         
+         const statusToggle = row.querySelector('td:nth-child(4) input[type="checkbox"]');
+         const isActive = statusToggle.checked;
+         
+         if ((selectedStatus === 'active' && isActive) || (selectedStatus === 'inactive' && !isActive)) {
+           row.style.display = '';
+         } else {
+           row.style.display = 'none';
+         }
+       });
+       
+       // Actualizar contador
+       updateUserCount();
+     });
+     
+     // Función para actualizar contador de usuarios
+     function updateUserCount() {
+       const visibleRows = document.querySelectorAll('#users-table-body tr:not([style*="display: none"])');
+       document.getElementById('user-count').textContent = `Mostrando ${visibleRows.length} usuarios`;
+     }
+     
+     // Modal de usuario (crear/editar)
+     const userModal = document.getElementById('user-modal');
+     const addUserBtn = document.getElementById('add-user-btn');
+     const closeModalBtn = document.getElementById('close-modal');
+     const cancelUserBtn = document.getElementById('cancel-user');
+     const saveUserBtn = document.getElementById('save-user');
+     const editUserBtns = document.querySelectorAll('.edit-user');
+     const modalTitle = document.getElementById('modal-title');
+     const userForm = document.getElementById('user-form');
+     const passwordFields = document.getElementById('password-fields');
+     
+     // Abrir modal para nuevo usuario
+     addUserBtn.addEventListener('click', function() {
+       modalTitle.textContent = 'Nuevo Usuario';
+       userForm.reset();
+       passwordFields.style.display = 'block';
+       document.getElementById('user-id').value = '';
+       document.getElementById('user-active').checked = true;
+       userModal.classList.add('active');
+       
+       // Animación de entrada
+       setTimeout(() => {
+         userModal.querySelector('.modal-container').classList.add('animate-fadeIn');
+       }, 10);
+     });
+     
+     // Abrir modal para editar usuario
+     editUserBtns.forEach(btn => {
+       btn.addEventListener('click', function() {
+         const userId = this.getAttribute('data-id');
+         modalTitle.textContent = 'Editar Usuario';
+         passwordFields.style.display = 'none';
+         document.getElementById('user-id').value = userId;
+         
+         // Simulación de cargar datos del usuario
+         const userRow = document.querySelector(`.user-checkbox[data-id="${userId}"]`).closest('tr');
+         const userName = userRow.querySelector('td:nth-child(2) .text-sm.font-medium').textContent.split(' ')[0];
+         const userLastName = userRow.querySelector('td:nth-child(2) .text-sm.font-medium').textContent.split(' ')[1];
+         const userEmail = userRow.querySelector('td:nth-child(2) .text-sm.text-gray-500').textContent;
+         const userRole = userRow.querySelector('td:nth-child(3) span').textContent.trim().toLowerCase();
+         const userActive = userRow.querySelector('td:nth-child(4) input[type="checkbox"]').checked;
+         
+         document.getElementById('user-name').value = userName;
+         document.getElementById('user-last-name').value = userLastName;
+         document.getElementById('user-email').value = userEmail;
+         document.getElementById('user-role').value = userRole;
+         document.getElementById('user-active').checked = userActive;
+         
+         userModal.classList.add('active');
+         
+         // Animación de entrada
+         setTimeout(() => {
+           userModal.querySelector('.modal-container').classList.add('animate-fadeIn');
+         }, 10);
+       });
+     });
+     
+     // Cerrar modal de usuario
+     function closeUserModal() {
+       userModal.classList.remove('active');
+     }
+     
+     closeModalBtn.addEventListener('click', closeUserModal);
+     cancelUserBtn.addEventListener('click', closeUserModal);
+     
+     // Guardar usuario
+     saveUserBtn.addEventListener('click', function() {
+       // Simulación de guardado
+       const userId = document.getElementById('user-id').value;
+       const userName = document.getElementById('user-name').value;
+       const userLastName = document.getElementById('user-last-name').value;
+       const userEmail = document.getElementById('user-email').value;
+       const userRole = document.getElementById('user-role').value;
+       const userActive = document.getElementById('user-active').checked;
+       
+       if (!userName || !userLastName || !userEmail) {
+         alert('Por favor complete todos los campos obligatorios');
+         return;
+       }
+       
+       saveUserBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+       saveUserBtn.disabled = true;
+       
+       // Simular petición
+       setTimeout(() => {
+         closeUserModal();
+         
+         // Mostrar notificación
+         showToast(userId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente', 'success');
+         
+         // Resetear botón
+         saveUserBtn.innerHTML = 'Guardar';
+         saveUserBtn.disabled = false;
+       }, 1000);
+     });
+     
+     // Modal de eliminación
+     const deleteModal = document.getElementById('delete-modal');
+     const deleteUserBtns = document.querySelectorAll('.delete-user');
+     const cancelDeleteBtn = document.getElementById('cancel-delete');
+     const confirmDeleteBtn = document.getElementById('confirm-delete');
+     let userToDelete = null;
+     
+     // Abrir modal de eliminación
+     deleteUserBtns.forEach(btn => {
+       btn.addEventListener('click', function() {
+         userToDelete = this.getAttributeuserToDelete = this.getAttribute('data-id');
+         deleteModal.classList.add('active');
+         
+         // Animación de entrada
+         setTimeout(() => {
+           deleteModal.querySelector('.modal-container').classList.add('animate-fadeIn');
+         }, 10);
+       });
+     });
+     
+     // Cerrar modal de eliminación
+     function closeDeleteModal() {
+       deleteModal.classList.remove('active');
+       userToDelete = null;
+     }
+     
+     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+     
+     // Confirmar eliminación
+     confirmDeleteBtn.addEventListener('click', function() {
+       if (!userToDelete) return;
+       
+       confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+       confirmDeleteBtn.disabled = true;
+       
+       // Simular petición
+       setTimeout(() => {
+         const userRow = document.querySelector(`.user-checkbox[data-id="${userToDelete}"]`).closest('tr');
+         
+         // Animación de salida
+         userRow.style.opacity = '0';
+         userRow.style.transform = 'translateX(20px)';
+         userRow.style.transition = 'all 0.3s ease';
+         
+         setTimeout(() => {
+           userRow.remove();
+           updateUserCount();
+         }, 300);
+         
+         closeDeleteModal();
+         
+         // Mostrar notificación
+         showToast('Usuario eliminado correctamente', 'success');
+         
+         // Resetear botón
+         confirmDeleteBtn.innerHTML = 'Eliminar';
+         confirmDeleteBtn.disabled = false;
+       }, 1000);
+     });
+     
+     // Botón de exportar
+     document.getElementById('export-btn').addEventListener('click', function() {
+       showToast('Exportando usuarios...', 'info');
+       
+       setTimeout(() => {
+         showToast('Usuarios exportados correctamente', 'success');
+       }, 1500);
+     });
+     
+     // Función para mostrar notificaciones toast
+     function showToast(message, type = 'info') {
+       // Crear elemento toast
+       const toast = document.createElement('div');
+       toast.className = `fixed bottom-4 left-4 px-4 py-2 rounded shadow-lg z-50 ${
+         type === 'success' ? 'bg-green-600' : 
+         type === 'error' ? 'bg-red-600' : 
+         type === 'warning' ? 'bg-amber-600' : 
+         'bg-primary-600'
+       } text-white transform translate-y-10 opacity-0 transition-all duration-300`;
+       
+       toast.innerHTML = `
+         <div class="flex items-center">
+           <i class="fas ${
+             type === 'success' ? 'fa-check-circle' : 
+             type === 'error' ? 'fa-exclamation-circle' : 
+             type === 'warning' ? 'fa-exclamation-triangle' : 
+             'fa-info-circle'
+           } mr-2"></i>
+           <span>${message}</span>
+         </div>
+       `;
+       
+       document.body.appendChild(toast);
+       
+       // Animación de entrada
+       setTimeout(() => {
+         toast.style.transform = 'translateY(0)';
+         toast.style.opacity = '1';
+       }, 100);
+       
+       // Eliminar después de 3 segundos
+       setTimeout(() => {
+         toast.style.transform = 'translateY(10px)';
+         toast.style.opacity = '0';
+         setTimeout(() => {
+           document.body.removeChild(toast);
+         }, 300);
+       }, 3000);
+     }
+     
+     // Agregar efectos de animación a las filas de la tabla
+     const tableRows = document.querySelectorAll('.table-row');
+     tableRows.forEach((row, index) => {
+       row.style.opacity = '0';
+       row.style.transform = 'translateY(10px)';
+       
+       setTimeout(() => {
+         row.style.transition = 'all 0.3s ease';
+         row.style.opacity = '1';
+         row.style.transform = 'translateY(0)';
+       }, 100 + (index * 50));
+     });
+     
+     // Cambiar estado de usuario (toggle)
+     const statusToggles = document.querySelectorAll('.switch input');
+     
+     statusToggles.forEach(toggle => {
+       toggle.addEventListener('change', function() {
+         const status = this.checked ? 'activado' : 'desactivado';
+         const row = this.closest('tr');
+         const userName = row.querySelector('td:nth-child(2) .text-sm.font-medium').textContent;
+         
+         showToast(`Usuario ${userName} ${status} correctamente`, 'success');
+       });
+     });
+   });
+ </script>
+</body>
+</html>

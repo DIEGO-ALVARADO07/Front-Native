@@ -41,7 +41,8 @@ document.getElementById("login-btn").addEventListener("click", async function (e
         localStorage.setItem("estructuraPermisos", JSON.stringify(estructuraPermisos));
 */
         // 4️⃣ Redirigir al home
-        window.location.href = "home.html";
+        window.location.href = "../IndexTemporales/Usuario.html";
+        window.location.href = "../IndexTemporales/Administrador.html";
 
     } catch (err) {
         console.error(err);
